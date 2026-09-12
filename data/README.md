@@ -22,8 +22,7 @@ Channels with consistent uploads are required. It ensures the following
 3. **One-hit wonders** - A channel with few videos and many subscribers indicates ***one*** of their vidoes went viral. It's median is meaningless and the channel is an outlier.
 
 Therefore I will define an **"Consistent Uploader"** as
->**Consistent Uploader:** One who has posted at least 30 long-form videos in the past 18 months, with no gap longer than 3 months
-
+>**Consistent Uploader:** One who has posted at least 18 long-form videos in the past 18 months, with no large gaps in uploads
 and only select channels who are consistent uploaders.
 
 ## Genre Spread within niche's
