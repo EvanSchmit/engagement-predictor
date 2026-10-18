@@ -21,12 +21,12 @@ def duration_to_seconds(duration):
         hours = int(hours_text)
     minutes = 0
     if "M" in rest:
-            minutes_text, rest = rest.split("M")
-            minutes = int(minutes_text)
+        minutes_text, rest = rest.split("M")
+        minutes = int(minutes_text)
     seconds = 0
     if "S" in rest:
-            seconds_text, rest = rest.split("S")
-            seconds = int(seconds_text)
+        seconds_text, rest = rest.split("S")
+        seconds = int(seconds_text)
 
     return hours * 3600 + minutes * 60 + seconds
 
