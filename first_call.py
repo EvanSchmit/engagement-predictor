@@ -1,18 +1,19 @@
 import os
-from dotenv import load_dotenv
+
 import requests
+from dotenv import load_dotenv
 
 load_dotenv()
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 
-url  = "https://www.googleapis.com/youtube/v3/videos"
+url = "https://www.googleapis.com/youtube/v3/videos"
 params = {
     "part": "snippet,statistics",
-    "id":"dQw4w9WgXcQ",
+    "id": "dQw4w9WgXcQ",
     "key": API_KEY,
 }
 
-response = requests.get(url, params = params)
+response = requests.get(url, params=params)
 data = response.json()
 
 print(response.status_code)

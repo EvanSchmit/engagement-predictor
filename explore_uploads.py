@@ -1,13 +1,13 @@
 import os
-import requests
-import json
 
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 CHANNEL_ID = "UCIPPMRA040LQr5QPyJEbmXA"
+
 
 def duration_to_seconds(duration):
     """Convert an ISO 8601 duration like "PT53S" to total seconds"""
@@ -30,7 +30,7 @@ def duration_to_seconds(duration):
 
     return hours * 3600 + minutes * 60 + seconds
 
-    
+
 uploads_playlist_id = "UU" + CHANNEL_ID[2:]
 print(uploads_playlist_id)
 
@@ -61,7 +61,7 @@ VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
 
 videos = []
 for start in range(0, len(video_ids), 50):
-    batch = video_ids[start:start + 50]
+    batch = video_ids[start : start + 50]
     video_params = {
         "part": "snippet,statistics,contentDetails",
         "id": ",".join(batch),
@@ -72,15 +72,19 @@ for start in range(0, len(video_ids), 50):
 
     for item in videos_data["items"]:
         stats = item["statistics"]
-        videos.append({
-            "video_id": item["id"],
-            "title": item["snippet"]["title"],
-            "published_at": item["snippet"]["publishedAt"],
-            "duration_s": duration_to_seconds(item["contentDetails"]["duration"]),
-            "view_count": int(stats["viewCount"]),
-            "like_count": int(stats["likeCount"]) if "likeCount" in stats else None,
-            "comment_count": int(stats["commentCount"]) if "commentCount" in stats else None,
-        })
+        videos.append(
+            {
+                "video_id": item["id"],
+                "title": item["snippet"]["title"],
+                "published_at": item["snippet"]["publishedAt"],
+                "duration_s": duration_to_seconds(item["contentDetails"]["duration"]),
+                "view_count": int(stats["viewCount"]),
+                "like_count": int(stats["likeCount"]) if "likeCount" in stats else None,
+                "comment_count": int(stats["commentCount"])
+                if "commentCount" in stats
+                else None,
+            }
+        )
 
 print(len(video_ids), len(videos))
 

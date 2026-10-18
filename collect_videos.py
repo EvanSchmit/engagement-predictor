@@ -1,7 +1,7 @@
+import csv
 import os
 import sqlite3
-from datetime import datetime, timezone
-import csv
+from datetime import UTC, datetime
 
 import requests
 from dotenv import load_dotenv
@@ -14,6 +14,7 @@ PLAYLIST_URL = "https://www.googleapis.com/youtube/v3/playlistItems"
 VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
 MAX_VIDEOS_PER_CHANNEL = 100
 CHANNELS_PATH = "data/channels_resolved.csv"
+
 
 def duration_to_seconds(duration):
     """Convert an ISO 8601 duration like "PT53S" to total seconds"""
@@ -35,6 +36,7 @@ def duration_to_seconds(duration):
         seconds = int(seconds_text)
 
     return hours * 3600 + minutes * 60 + seconds
+
 
 def get_video_ids(channel_id: str) -> list[str]:
     """Return up to 100 IDs of uploads on a channel."""
@@ -64,13 +66,14 @@ def get_video_ids(channel_id: str) -> list[str]:
 
     return video_ids[:MAX_VIDEOS_PER_CHANNEL]
 
+
 def get_video_details(channel_id: str, video_ids: list[str]) -> list[dict]:
     """Fetch details for a channel's videos and return one record per video."""
-    collected_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    collected_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     videos = []
 
     for start in range(0, len(video_ids), 50):
-        batch = video_ids[start:start + 50]
+        batch = video_ids[start : start + 50]
         params = {
             "part": "snippet,statistics,contentDetails",
             "id": ",".join(batch),
@@ -85,23 +88,33 @@ def get_video_details(channel_id: str, video_ids: list[str]) -> list[dict]:
             if item["snippet"]["liveBroadcastContent"] != "none":
                 continue
             stats = item["statistics"]
-            videos.append({
-                "video_id": item["id"],
-                "channel_id": channel_id,
-                "title": item["snippet"]["title"],
-                "published_at": item["snippet"]["publishedAt"],
-                "duration_s": duration_to_seconds(item["contentDetails"]["duration"]),
-                "view_count": int(stats["viewCount"]),
-                "like_count": int(stats["likeCount"]) if "likeCount" in stats else None,
-                "comment_count": int(stats["commentCount"]) if "commentCount" in stats else None,
-                "collected_at": collected_at,
-            })
+            videos.append(
+                {
+                    "video_id": item["id"],
+                    "channel_id": channel_id,
+                    "title": item["snippet"]["title"],
+                    "published_at": item["snippet"]["publishedAt"],
+                    "duration_s": duration_to_seconds(
+                        item["contentDetails"]["duration"]
+                    ),
+                    "view_count": int(stats["viewCount"]),
+                    "like_count": int(stats["likeCount"])
+                    if "likeCount" in stats
+                    else None,
+                    "comment_count": int(stats["commentCount"])
+                    if "commentCount" in stats
+                    else None,
+                    "collected_at": collected_at,
+                }
+            )
 
     return videos
 
+
 def save_videos(conn: sqlite3.Connection, videos: list[dict]) -> None:
     """Insert or update video records, then commit."""
-    conn.executemany("""
+    conn.executemany(
+        """
         INSERT OR REPLACE INTO videos (
             video_id, channel_id, title, published_at, duration_s,
             view_count, like_count, comment_count, collected_at
@@ -109,8 +122,11 @@ def save_videos(conn: sqlite3.Connection, videos: list[dict]) -> None:
             :video_id, :channel_id, :title, :published_at, :duration_s,
             :view_count, :like_count, :comment_count, :collected_at
         )
-    """, videos)
+    """,
+        videos,
+    )
     conn.commit()
+
 
 def create_table(conn: sqlite3.Connection) -> None:
     """Create the videos table if it doesn't exist yet."""
@@ -128,6 +144,7 @@ def create_table(conn: sqlite3.Connection) -> None:
         )
     """)
     conn.commit()
+
 
 def main():
     with open(CHANNELS_PATH, newline="") as f:

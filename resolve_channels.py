@@ -13,6 +13,7 @@ URL = "https://www.googleapis.com/youtube/v3/channels"
 INPUT_PATH = "data/channels.csv"
 OUTPUT_PATH = "data/channels_resolved.csv"
 
+
 def resolve_handle(handle):
     params = {"part": "snippet,statistics", "forHandle": handle, "key": API_KEY}
     response = requests.get(URL, params=params, timeout=10)
@@ -34,6 +35,7 @@ def resolve_handle(handle):
         "video_count": stats.get("videoCount", ""),
     }
 
+
 def main():
     with open(INPUT_PATH, newline="") as f:
         rows = list(csv.DictReader(f))
@@ -46,8 +48,15 @@ def main():
         else:
             row.update(result)
 
-    fieldnames = ["channel_handle", "channel_id", "channel_name", "niche",
-                  "subscriber_count", "video_count", "notes"]
+    fieldnames = [
+        "channel_handle",
+        "channel_id",
+        "channel_name",
+        "niche",
+        "subscriber_count",
+        "video_count",
+        "notes",
+    ]
     with open(OUTPUT_PATH, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
